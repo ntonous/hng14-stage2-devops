@@ -1,201 +1,177 @@
-# hng14-stage2-devops
-# 🚀 Stage 2 DevOps Task — Containerized Microservices Job Processor
+# 🚀 Stage 2 DevOps Task – Containerized Job Processor
 
-## 📌 Overview
+## 📌 Project Overview
 
-This project is a **containerized microservices application** designed to simulate a job processing system. It consists of multiple services working together to accept, queue, process, and track jobs in real-time.
+This project is a production-ready **containerized microservices job processing system** built as part of the **HNG Stage 2 DevOps Task**.
 
-The objective of this task was to transform a **broken starter repository** into a **production-ready system** by:
+The objective was to audit, fix, optimize, and deploy a broken multi-service application using DevOps best practices.
 
-- Fixing application bugs
-- Containerizing services using Docker
-- Orchestrating services with Docker Compose
-- Implementing health checks and environment-based configuration
-- Ensuring secure and scalable architecture
+The system allows users to submit jobs through a web dashboard, processes them asynchronously using a worker service, and tracks job completion in real-time.
 
 ---
 
-## 🧱 Architecture
+## 🛠 Tech Stack
 
-The application is composed of four core services:
-
-### 1. Frontend (Node.js / Express)
-- Provides a simple web interface for submitting jobs and tracking status
-- Communicates with the API service
-
-### 2. API (FastAPI)
-- Handles job creation and status retrieval
-- Pushes jobs into Redis queue
-
-### 3. Worker (Python)
-- Consumes jobs from Redis queue
-- Processes jobs asynchronously
-- Updates job status
-
-### 4. Redis
-- Acts as a message queue and temporary data store
+| Component | Technology |
+|--------|------------|
+| Frontend | Node.js + Express |
+| Backend API | FastAPI |
+| Worker Service | Python |
+| Queue / Cache | Redis |
+| Containerization | Docker |
+| Orchestration | Docker Compose |
 
 ---
 
-## 🔄 System Flow
+## 🏗 System Architecture
 
-1. User submits a job via frontend
-2. Frontend sends request to API
-3. API pushes job into Redis queue
-4. Worker pulls job from Redis and processes it
-5. Worker updates job status
-6. Frontend polls API for job status
+```text
+User Browser
+     ↓
+Frontend Dashboard (Port 3000)
+     ↓
+FastAPI Backend (Port 8000)
+     ↓
+Redis Queue
+     ↓
+Python Worker Service
 
----
+✨ Features
+Submit background jobs from dashboard
+Real-time job status updates
+Redis-powered queue system
+Multi-container microservices setup
+Docker healthchecks enabled
+Automatic service restart policies
+Secure non-root containers
+Environment variable configuration
+Clean production-ready structure
 
-## ⚙️ Technologies Used
-
-- **Docker & Docker Compose**
-- **FastAPI (Python)**
-- **Node.js / Express**
-- **Redis**
-- **Uvicorn**
-- **ESLint & Flake8 (for CI readiness)**
-
----
-
-## 📁 Project Structure
-
+📂 Project Structure
 hng14-stage2-devops/
+│── api/
+│   ├── main.py
+│   ├── requirements.txt
+│   └── Dockerfile
 │
-├── api/
-│ ├── main.py
-│ ├── requirements.txt
-│ └── Dockerfile
+│── frontend/
+│   ├── app.js
+│   ├── package.json
+│   ├── views/
+│   └── Dockerfile
 │
-├── frontend/
-│ ├── app.js
-│ ├── package.json
-│ ├── views/
-│ └── Dockerfile
+│── worker/
+│   ├── worker.py
+│   ├── requirements.txt
+│   └── Dockerfile
 │
-├── worker/
-│ ├── worker.py
-│ ├── requirements.txt
-│ └── Dockerfile
-│
-├── docker-compose.yml
-├── .env.example
-├── .gitignore
-├── FIXES.md
-└── README.md
+│── docker-compose.yml
+│── .env.example
+│── .gitignore
+│── FIXES.md
+│── README.md
 
+Major Fixes Implemented
+Backend API
+Removed hardcoded Redis configuration
+Added .env support
+Added /health endpoint
+Fixed invalid HTTP responses
+Improved reliability
+Worker Service
+Removed unused imports
+Added Redis reconnect logic
+Added proper error handling
+Improved job status tracking
+Added healthcheck support
+Frontend
+Removed hardcoded API URLs
+Added environment variable config
+Added /health route
+Improved logs & errors
+Production Docker support
+Infrastructure
+Added Dockerfiles for all services
+Added Docker Compose orchestration
+Added .dockerignore
+Added healthchecks
+Added restart policies
+Added resource limits
+Improved security with non-root users
+⚙️ Environment Variables
 
----
-
-## 🔐 Environment Variables
-
-Create a `.env` file in the root directory using the template below:
-
+Create .env
 REDIS_HOST=redis
 REDIS_PORT=6379
+
 API_PORT=8000
 FRONTEND_PORT=3000
+
 API_URL=http://api:8000
 
-PORT=3000
-
-
-⚠️ `.env` is not committed for security reasons. Use `.env.example` as reference.
-
----
-
-## 🐳 Running the Application
-
-### Prerequisites
-
-- Install Docker Desktop  
-- Ensure Docker Engine is running  
-
-### Steps
-
-1. Clone the repository:
-
-```bash
-git clone https://github.com/chukwukelu2023/hng14-stage2-devops
+Running the Project
+1️⃣ Clone Repository
+git clone https://github.com/ntonous/hng14-stage2-devops.git
 cd hng14-stage2-devops
 
-Create .env file (see above)
-Start the application:
+2️⃣ Start Services
+docker compose up --build -d
 
-docker compose up --build
+3️⃣ Verify Running Containers
+docker compose ps
 
-🌐 Access the Application
+Expected:
 
-Once running:
+frontend → healthy
+api → healthy
+worker → healthy
+redis → healthy
+🌐 Access Application
+Frontend Dashboard
+http://localhost:3000
 
-Frontend: http://localhost:3000
-API: http://localhost:8000
-🧪 Testing the Application
-Open the frontend in your browser
+API Health Check
+http://localhost:8000/health
+
+health
+🧪 Testing Job Flow
+Open Dashboard
 Click Submit New Job
-Observe:
-Job ID generated
-Status updates from queued → processing → completed
-❤️ Health Checks
+Worker processes task
+Status becomes:
+completed
+![alt text](image-1.png)
+![alt text](image-2.png)
+![alt text](image-3.png)
+![alt text](image-4.png)
 
-Each service includes a health check endpoint or mechanism:
+🔒 Security Improvements
+Containers run as non-root users
+Environment variables externalized
+Reduced image sizes with slim/alpine images
+Health monitoring enabled
+Safer production deployment setup
 
-API: /health
-Frontend: /health
-Redis: redis-cli ping
-Worker: process-based check
+📈 DevOps Skills Demonstrated
+Debugging broken applications
+Docker image optimization
+Multi-container orchestration
+Service dependency management
+Health monitoring
+Production readiness
+Environment management
+Git workflow & documentation
 
-These ensure proper service readiness and stability.
-
-🔒 Security Considerations
-No secrets or .env files are committed
-All services run as non-root users
-Redis is not exposed publicly
-Environment variables used for configuration
-🛠 Improvements Made
-Removed hardcoded configurations
-Introduced environment variables
-Fixed inter-service communication issues
-Added Dockerfiles for all services
-Implemented health checks
-Improved error handling and logging
-Structured project for scalability
-
-Full details are available in:
-
-👉 FIXES.md
-
-📦 Deployment Notes
-
-This application is production-ready and can be deployed on:
-
-VPS (Ubuntu)
-Cloud VM (AWS, Azure, GCP)
-
-Ensure Docker is installed and run:
-
-docker compose up -d
-
-📌 Key DevOps Concepts Demonstrated
-Containerization
-Service orchestration
-Internal networking
-Health checks
-Environment configuration
-Microservices architecture
-Debugging and system hardening
-✅ Status
-
-✔ Fully functional
-✔ Dockerized
-✔ Tested end-to-end
-✔ Ready for submission
+📄 Deliverables Included
+Source Code
+Dockerfiles
+Docker Compose
+FIXES.md
+README.md
+GitHub Repository
 
 👤 Author
 
 Hezekiah Umoh
 
-Final Note
-
-This project demonstrates practical DevOps skills in transforming a flawed system into a robust, production-ready microservices architecture.
+GitHub: https://github.com/ntonous
