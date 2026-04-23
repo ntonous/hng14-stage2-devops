@@ -1,0 +1,38 @@
+name: CI Pipeline
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  lint-test-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Python Dependencies
+        run: |
+          pip install flake8 pytest requests
+          pip install -r api/requirements.txt
+
+      - name: Lint Python Code
+        run: flake8 api worker --max-line-length=120
+
+      - name: Run Unit Tests
+        run: pytest tests
+
+      - name: Build API Image
+        run: docker build -t api ./api
+
+      - name: Build Worker Image
+        run: docker build -t worker ./worker
+
+      - name: Build Frontend Image
+        run: docker build -t frontend ./frontend
