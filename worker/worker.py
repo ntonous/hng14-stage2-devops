@@ -6,7 +6,11 @@ import redis
 REDIS_HOST = os.getenv("REDIS_HOST", "redis")
 REDIS_PORT = int(os.getenv("REDIS_PORT", 6379))
 
-r = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, decode_responses=True)
+r = redis.Redis(
+    host=REDIS_HOST,
+    port=REDIS_PORT,
+    decode_responses=True,
+)
 
 
 def process_job(job_id):
@@ -26,4 +30,3 @@ while True:
     except Exception as e:
         print(f"Redis connection error: {e}")
         time.sleep(5)
-        
