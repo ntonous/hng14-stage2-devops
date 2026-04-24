@@ -2,9 +2,6 @@ name: CI Pipeline
 
 on:
   push:
-    branches:
-      - main
-      - "**"
   pull_request:
 
 jobs:
@@ -13,35 +10,27 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repo
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
-      - name: Install Python Tools
-        run: pip install flake8
+      - run: pip install flake8
 
-      - name: Lint Python
-        run: flake8 api worker tests --max-line-length=120
+      - run: flake8 api worker tests --max-line-length=120
 
-      - name: Install Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: Install Frontend Dependencies
+      - run: npm install
         working-directory: frontend
-        run: npm install
 
-      - name: Lint JavaScript
+      - run: npx eslint . || true
         working-directory: frontend
-        run: npx eslint . || true
 
-      - name: Lint Dockerfiles
-        run: |
+      - run: |
           docker run --rm -i hadolint/hadolint < api/Dockerfile
           docker run --rm -i hadolint/hadolint < worker/Dockerfile
           docker run --rm -i hadolint/hadolint < frontend/Dockerfile
@@ -51,117 +40,83 @@ jobs:
     needs: lint
 
     steps:
-      - name: Checkout Repo
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
-      - name: Install Dependencies
-        run: |
+      - run: |
           pip install pytest pytest-cov requests httpx
           pip install -r api/requirements.txt
 
-      - name: Run Tests with Coverage
-        run: |
-          PYTHONPATH=. pytest tests --cov=api --cov-report=xml
+      - run: PYTHONPATH=. pytest tests --cov=api --cov-report=xml
 
-      - name: Upload Coverage Report
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
-          name: coverage-report
+          name: coverage
           path: coverage.xml
 
   build:
     runs-on: ubuntu-latest
     needs: test
 
-    services:
-      registry:
-        image: registry:2
-        ports:
-          - 5000:5000
-
     steps:
-      - name: Checkout Repo
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Build API
-        run: |
-          docker build -t localhost:5000/api:${{ github.sha }} ./api
-          docker tag localhost:5000/api:${{ github.sha }} localhost:5000/api:latest
-          docker push localhost:5000/api:${{ github.sha }}
-          docker push localhost:5000/api:latest
-
-      - name: Build Worker
-        run: |
-          docker build -t localhost:5000/worker:${{ github.sha }} ./worker
-          docker tag localhost:5000/worker:${{ github.sha }} localhost:5000/worker:latest
-          docker push localhost:5000/worker:${{ github.sha }}
-          docker push localhost:5000/worker:latest
-
-      - name: Build Frontend
-        run: |
-          docker build -t localhost:5000/frontend:${{ github.sha }} ./frontend
-          docker tag localhost:5000/frontend:${{ github.sha }} localhost:5000/frontend:latest
-          docker push localhost:5000/frontend:${{ github.sha }}
-          docker push localhost:5000/frontend:latest
+      - run: docker build -t api ./api
+      - run: docker build -t worker ./worker
+      - run: docker build -t frontend ./frontend
 
   security-scan:
     runs-on: ubuntu-latest
     needs: build
 
     steps:
-      - name: Checkout Repo
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Build Images
-        run: |
-          docker build -t api ./api
-          docker build -t worker ./worker
-          docker build -t frontend ./frontend
+      - run: docker build -t api ./api
+      - run: docker build -t worker ./worker
+      - run: docker build -t frontend ./frontend
 
       - name: Scan API
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: api
-          format: sarif
-          output: api.sarif
-          severity: CRITICAL
+          severity: HIGH,CRITICAL
           exit-code: 1
 
-      - name: Upload SARIF
-        uses: actions/upload-artifact@v4
+      - name: Scan Worker
+        uses: aquasecurity/trivy-action@master
         with:
-          name: trivy-results
-          path: "*.sarif"
+          image-ref: worker
+          severity: HIGH,CRITICAL
+          exit-code: 1
+
+      - name: Scan Frontend
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: frontend
+          severity: HIGH,CRITICAL
+          exit-code: 1
 
   integration-test:
     runs-on: ubuntu-latest
     needs: security-scan
 
     steps:
-      - name: Checkout Repo
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Start Stack
-        run: docker compose up -d --build
+      - run: docker compose up -d --build
 
-      - name: Wait for Startup
-        run: sleep 20
+      - run: sleep 20
 
-      - name: Submit Job
-        run: |
-          curl -X POST http://localhost:3000/jobs
+      - run: curl http://localhost:8000/health
+      - run: curl http://localhost:3000
 
-      - name: Poll Job Completion
-        run: |
-          sleep 10
+      - run: curl -X POST http://localhost:8000/jobs
 
-      - name: Shutdown Stack
-        if: always()
+      - if: always()
         run: docker compose down -v
 
   deploy:
@@ -170,8 +125,4 @@ jobs:
     if: github.ref == 'refs/heads/main'
 
     steps:
-      - name: Simulated Rolling Deploy
-        run: |
-          docker compose up -d --build
-          sleep 20
-          echo "Health check passed. Old container replaced."
+      - run: echo "Rolling deployment simulated successfully"
