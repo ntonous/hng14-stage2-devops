@@ -1,106 +1,127 @@
-# 🚀 Stage 2 DevOps Task – Containerized Job Processor
+# HNG Stage 2 DevOps Task — Containerized Job Processor
 
-## 📌 Project Overview
+![CI Pipeline](https://github.com/ntonous/hng14-stage2-devops/actions/workflows/main.yml/badge.svg)
 
-This project is a production-ready **containerized microservices job processing system** built as part of the **HNG Stage 2 DevOps Task**.
+##  Project Overview
 
-The objective was to audit, fix, optimize, and deploy a broken multi-service application using DevOps best practices.
+This project is a **production-ready containerized microservices job processing system** built for the **HNG Stage 2 DevOps Task**.
 
-The system allows users to submit jobs through a web dashboard, processes them asynchronously using a worker service, and tracks job completion in real-time.
+The application was audited, repaired, optimized, containerized, and automated with a complete CI/CD pipeline using GitHub Actions.
 
----
-
-## 🛠 Tech Stack
-
-| Component | Technology |
-|--------|------------|
-| Frontend | Node.js + Express |
-| Backend API | FastAPI |
-| Worker Service | Python |
-| Queue / Cache | Redis |
-| Containerization | Docker |
-| Orchestration | Docker Compose |
+Users can submit jobs from a web dashboard, jobs are processed asynchronously by a worker service, and statuses are tracked in real time.
 
 ---
 
-## 🏗 System Architecture
+## Tech Stack
+
+| Component      | Technology        |
+| -------------- | ----------------- |
+| Frontend       | Node.js + Express |
+| Backend API    | FastAPI           |
+| Worker Service | Python            |
+| Queue / Cache  | Redis             |
+| Containers     | Docker            |
+| Orchestration  | Docker Compose    |
+| CI/CD          | GitHub Actions    |
+
+---
+
+## Architecture
 
 ```text
 User Browser
      ↓
 Frontend Dashboard (Port 3000)
      ↓
-FastAPI Backend (Port 8000)
+FastAPI API Service (Port 8000)
      ↓
 Redis Queue
      ↓
-Python Worker Service
+Python Worker
+```
 
-✨ Features
-Submit background jobs from dashboard
-Real-time job status updates
-Redis-powered queue system
-Multi-container microservices setup
-Docker healthchecks enabled
-Automatic service restart policies
-Secure non-root containers
-Environment variable configuration
-Clean production-ready structure
+---
 
-📂 Project Structure
+## Key Features
+
+* Submit background jobs from dashboard
+* Real-time job tracking
+* Redis queue processing
+* Multi-container microservices architecture
+* Docker health checks
+* Automatic restart policies
+* Environment variable configuration
+* Security image scanning
+* Full CI/CD automation
+* Production-ready deployment workflow
+
+---
+
+## Project Structure
+
+```text
 hng14-stage2-devops/
 │── api/
-│   ├── main.py
-│   ├── requirements.txt
-│   └── Dockerfile
-│
 │── frontend/
-│   ├── app.js
-│   ├── package.json
-│   ├── views/
-│   └── Dockerfile
-│
 │── worker/
-│   ├── worker.py
-│   ├── requirements.txt
-│   └── Dockerfile
-│
+│── tests/
+│── .github/workflows/main.yml
 │── docker-compose.yml
 │── .env.example
-│── .gitignore
 │── FIXES.md
 │── README.md
+```
 
-Major Fixes Implemented
-Backend API
-Removed hardcoded Redis configuration
-Added .env support
-Added /health endpoint
-Fixed invalid HTTP responses
-Improved reliability
-Worker Service
-Removed unused imports
-Added Redis reconnect logic
-Added proper error handling
-Improved job status tracking
-Added healthcheck support
-Frontend
-Removed hardcoded API URLs
-Added environment variable config
-Added /health route
-Improved logs & errors
-Production Docker support
-Infrastructure
-Added Dockerfiles for all services
-Added Docker Compose orchestration
-Added .dockerignore
-Added healthchecks
-Added restart policies
-Added resource limits
-Improved security with non-root users
-⚙️ Environment Variables
+---
 
-Create .env
+## 🔄 CI/CD Pipeline
+
+The project uses a complete multi-stage GitHub Actions pipeline:
+
+```text
+lint → test → build → security-scan → integration-test → deploy
+```
+
+### Pipeline Stages
+
+### ✅ Lint
+
+* Python linting with flake8
+* JavaScript linting with ESLint
+* Dockerfile linting with Hadolint
+
+### ✅ Test
+
+* Unit tests with pytest
+* Coverage reports generated automatically
+
+### ✅ Build
+
+* API Docker image
+* Worker Docker image
+* Frontend Docker image
+
+### ✅ Security Scan
+
+* Trivy image vulnerability scanning
+
+### ✅ Integration Test
+
+* Full application stack launched with Docker Compose
+* API + frontend health checks
+* Job submission test
+
+### ✅ Deploy
+
+* Simulated rolling deployment on `main`
+
+---
+
+## ⚙️ Environment Variables
+
+Create `.env`
+
+```env
 REDIS_HOST=redis
 REDIS_PORT=6379
 
@@ -108,74 +129,112 @@ API_PORT=8000
 FRONTEND_PORT=3000
 
 API_URL=http://api:8000
+```
 
-Running the Project
-1️⃣ Clone Repository
+---
+
+## Run Locally
+
+### 1️⃣ Clone Repository
+
+```bash
 git clone https://github.com/ntonous/hng14-stage2-devops.git
 cd hng14-stage2-devops
+```
 
-2️⃣ Start Services
+### 2️⃣ Start Application
+
+```bash
 docker compose up --build -d
+```
 
-3️⃣ Verify Running Containers
+### 3️⃣ Verify Containers
+
+```bash
 docker compose ps
+```
 
 Expected:
 
-frontend → healthy
-api → healthy
-worker → healthy
-redis → healthy
-🌐 Access Application
-Frontend Dashboard
+* frontend → healthy
+* api → healthy
+* worker → healthy
+* redis → healthy
+
+---
+
+## Application Access
+
+### Frontend Dashboard
+
+```text
 http://localhost:3000
+```
 
-API Health Check
+### API Health Check
+
+```text
 http://localhost:8000/health
+```
 
-health
-🧪 Testing Job Flow
-Open Dashboard
-Click Submit New Job
-Worker processes task
-Status becomes:
+---
+
+## Job Flow Test
+
+1. Open dashboard
+2. Submit new job
+3. Worker processes queue
+4. Status updates to:
+
+```text
 completed
-![alt text](image-1.png)
-![alt text](image-2.png)
-![alt text](image-3.png)
-![alt text](image-4.png)
+```
 
-🔒 Security Improvements
-Containers run as non-root users
-Environment variables externalized
-Reduced image sizes with slim/alpine images
-Health monitoring enabled
-Safer production deployment setup
+---
 
-📈 DevOps Skills Demonstrated
-Debugging broken applications
-Docker image optimization
-Multi-container orchestration
-Service dependency management
-Health monitoring
-Production readiness
-Environment management
-Git workflow & documentation
+## Security Improvements
 
-📄 Deliverables Included
-Source Code
-Dockerfiles
-Docker Compose
-FIXES.md
-README.md
-GitHub Repository
+* Containers run as non-root users
+* Vulnerability scans with Trivy
+* Lightweight base images
+* Health monitoring enabled
+* Environment secrets externalized
 
-👤 Author
+---
 
-Hezekiah Umoh
+## DevOps Skills Demonstrated
+
+* CI/CD pipeline engineering
+* Docker optimization
+* Microservices orchestration
+* Security scanning
+* Automated testing
+* Integration testing
+* GitHub Actions workflows
+* Production troubleshooting
+* Deployment automation
+
+---
+
+## Deliverables
+
+* Source code
+* Dockerfiles
+* Docker Compose
+* GitHub Actions pipeline
+* README.md
+* FIXES.md
+
+---
+
+## 👤 Author
+
+**Hezekiah Umoh**
 
 GitHub: https://github.com/ntonous
 
-🎯 Final Note
+---
 
-This project demonstrates practical DevOps ability in transforming a flawed application into a clean, scalable, containerized production-ready system.
+## 🎯 Final Note
+
+This project demonstrates practical DevOps ability in transforming a broken system into a secure, scalable, containerized production-ready platform with full CI/CD automation.
